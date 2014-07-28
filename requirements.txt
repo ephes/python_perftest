@@ -1,4 +1,5 @@
-numpy
-llvmpy
-Cython
-numba
+Cython==0.20.2
+llvmpy==0.12.6
+numba==0.13.3
+numpy==1.8.1
+wsgiref==0.1.2
