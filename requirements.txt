@@ -1,4 +1,4 @@
-Cython==0.20.2
-llvmpy==0.12.6-19-g8bea206
-numba==0.13.3
-numpy==1.8.1
+numpy
+llvmpy
+Cython
+numba
