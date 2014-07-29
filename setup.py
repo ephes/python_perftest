@@ -2,12 +2,9 @@
 import os
 import sys
 
-try:
-    from setuptools import setup, Extension
-    # hush pyflakes
-    setup
-except ImportError:
-    from distutils.core import setup, Extension
+from Cython.Build import cythonize
+
+from distutils.core import setup, Extension
 
 if sys.argv[-1] == 'publish':
     os.system('python setup.py sdist upload')
@@ -20,11 +17,12 @@ setup(
     author_email='jochen-perftest@wersdoerfer.de',
     include_package_data=True,
     install_requires = [''],
-    ext_modules = [
+    ext_modules = cythonize("perftest/posting_lists_cython.pyx"),
+#    ext_modules = [
         #Extension("postings", sources=["postings/postings.c"])
         #Extension("postings_new", sources=["postings/postings_new.c"])
         #Extension("postings_new", sources=["postings/postings_new3.c"])
-    ],
+#    ],
     packages=['python_perftest'],
     url='https://github.com/ephes/python_perftest',
     license='BSD licence, see LICENCE.txt',
