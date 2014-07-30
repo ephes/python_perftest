@@ -29,6 +29,9 @@ class IntersectBase(object):
         t = Timer(self)
         print(self.timeit_string.format(round(t.timeit(number=10), 5)))
     
+    def intersection_as_list(self):
+        return self()
+
 
 class PythonListIntersect(IntersectBase):
     timeit_string = "naive python list intersection    : {:>30}s"
@@ -52,7 +55,6 @@ class PythonListIntersect(IntersectBase):
                 pointers[min_num] += 1
                 if pointers[min_num] >= list_lens[min_num]:
                     not_finished = False
-        self.intersection = intersection
         return intersection
 
 
@@ -88,8 +90,7 @@ class NumbaListIntersect(IntersectBase):
         tmp_intersection = numba_list_intersect(lists[0], lists[1])
         for new_list in lists[2:]:
             tmp_intersection = numba_list_intersect(tmp_intersection, new_list)
-        self.intersection = tmp_intersection
-        return self.intersection
+        return tmp_intersection
 
 
 class NumpyArrayIntersect(IntersectBase):
@@ -105,8 +106,10 @@ class NumpyArrayIntersect(IntersectBase):
         tmp_intersection = np.intersect1d(self.array_lists[0], self.array_lists[1])
         for new_list in self.array_lists[2:]:
             tmp_intersection = np.intersect1d(tmp_intersection, new_list)
-        self.intersection = tmp_intersection
-        return self.intersection
+        return tmp_intersection
+
+    def intersection_as_list(self):
+        return list(self())
 
 
 class PythonSetIntersect(IntersectBase):
@@ -119,9 +122,10 @@ class PythonSetIntersect(IntersectBase):
             self.set_lists.append(set(posting_list))
     
     def __call__(self):
-        self.intersection = set.intersection(*self.set_lists)
-        #print(sorted(list(self.intersection)))
-        return self.intersection
+        return set.intersection(*self.set_lists)
+
+    def intersection_as_list(self):
+        return sorted(list(self()))
 
 
 class PythonArrayIntersect(IntersectBase):
@@ -155,6 +159,9 @@ class PythonArrayIntersect(IntersectBase):
         self.intersection = intersection
         return intersection
 
+    def intersection_as_list(self):
+        return list(self())
+
 
 class CythonArrayIntersect(IntersectBase):
     timeit_string = "cython array intersection         : {:>30}s"
@@ -166,9 +173,11 @@ class CythonArrayIntersect(IntersectBase):
             self.array_lists.append(array("i", posting_list))
         
     def __call__(self):
-        #self.intersection = intersect_2cython(self.xar, self.yar)
-        self.intersection = intersect_lists_cython(self.array_lists)
-        return self.intersection
+        #return intersect_2cython(self.xar, self.yar)
+        return intersect_lists_cython(self.array_lists)
+
+    def intersection_as_list(self):
+        return list(self())
     
 
 def run_timeit():

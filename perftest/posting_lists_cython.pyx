@@ -57,18 +57,27 @@ cpdef array.array intersect_lists_cython(lists):
 
     cdef array.array int_array_template = array('i', [])
     cdef array.array intersection
-    cdef int intersection_idx, max_size
-    intersection_idx, max_size = 0, -1
+    cdef int intersection_idx, max_size, i_len_list
+    intersection_idx, max_size, i_len_list = 0, -1, 0
 
     cdef int[:] tmp_array
 
     for i in range(lists_len):
-        tmp_array = lists[i]
-        my_arrays[i] = &tmp_array[0]
-        pointers[i] = 0
-        list_lens[i] = len(lists[i])
-        if list_lens[i] > max_size:
-            max_size = list_lens[i]
+        i_len_list = len(lists[i])
+        if i_len_list > 0:
+            tmp_array = lists[i]
+            my_arrays[i] = &tmp_array[0]
+            pointers[i] = 0
+            list_lens[i] = i_len_list
+            if i_len_list > max_size:
+                max_size = i_len_list
+        else:
+            PyMem_Free(my_arrays)
+            PyMem_Free(pointers)
+            PyMem_Free(list_lens)
+            # one of the lists is empty, return empty intersection
+            intersection = array.clone(int_array_template, 0, zero=False)
+            return intersection
 
     intersection = array.clone(int_array_template, max_size, zero=False)
 
