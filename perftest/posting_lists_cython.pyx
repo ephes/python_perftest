@@ -44,18 +44,17 @@ cpdef array.array intersect_lists_cython(lists):
     if not my_arrays:
         raise MemoryError()
 
-    cdef int *pointers = <Py_ssize_t *>PyMem_Malloc(lists_len * cython.sizeof(Py_ssize_t))
+    cdef int *pointers = <int *>PyMem_Malloc(lists_len * cython.sizeof(Py_ssize_t))
     if not pointers:
         raise MemoryError()
 
-    cdef int *list_lens = <Py_ssize_t *>PyMem_Malloc(lists_len * cython.sizeof(Py_ssize_t))
+    cdef int *list_lens = <int *>PyMem_Malloc(lists_len * cython.sizeof(Py_ssize_t))
     if not list_lens:
         raise MemoryError()
 
     cdef array.array int_array_template = array('i', [])
     cdef array.array intersection
-    cdef int intersection_idx, max_size, i_len_list
-    intersection_idx, max_size, i_len_list = 0, -1, 0
+    cdef int intersection_idx = 0, min_size, i_len_list
 
     cdef int[:] tmp_array
 
@@ -66,8 +65,10 @@ cpdef array.array intersect_lists_cython(lists):
             my_arrays[i] = &tmp_array[0]
             pointers[i] = 0
             list_lens[i] = i_len_list
-            if i_len_list > max_size:
-                max_size = i_len_list
+            if i == 0:
+                min_size = i_len_list
+            elif i_len_list < min_size:
+                min_size = i_len_list
         else:
             PyMem_Free(my_arrays)
             PyMem_Free(pointers)
@@ -76,7 +77,7 @@ cpdef array.array intersect_lists_cython(lists):
             intersection = array.clone(int_array_template, 0, zero=False)
             return intersection
 
-    intersection = array.clone(int_array_template, max_size, zero=False)
+    intersection = array.clone(int_array_template, min_size, zero=False)
 
     cdef int min_val, min_idx, tmp_val, prev_val, all_same
     min_val, min_idx, tmp_val, prev_val, all_same = -1, -1, -1, -1, -1

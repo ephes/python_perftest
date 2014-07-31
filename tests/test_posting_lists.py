@@ -18,8 +18,8 @@ TEST_CLASSES = [
     PythonListIntersect,
     NumpyArrayIntersect,
     PythonSetIntersect,
+    CythonArrayIntersect,
     CythonArrayIntersect2,
-    #CythonArrayIntersect,
     ExtensionArrayIntersect,
 ]
 

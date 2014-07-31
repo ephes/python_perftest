@@ -212,8 +212,8 @@ def run_timeit():
         PythonListIntersect,
         NumbaListIntersect,
         NumpyArrayIntersect,
-        CythonArrayIntersect,
         ExtensionArrayIntersect,
+        CythonArrayIntersect,
         CythonArrayIntersect2,
         PythonSetIntersect,
     ]
