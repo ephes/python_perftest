@@ -135,6 +135,7 @@ intersect_lists_extension(PyObject *m, PyObject *args) {
 #else
             PyObject *item = PyInt_FromLong(min_val);
             PyList_Append(intersection, item);
+            Py_DECREF(item);
 #endif
             intersection_idx++;
             for (i = 0; i < lists_len; i++) {
