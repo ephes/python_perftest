@@ -74,13 +74,11 @@ cpdef array.array intersect_lists_cython(lists):
             PyMem_Free(pointers)
             PyMem_Free(list_lens)
             # one of the lists is empty, return empty intersection
-            intersection = array.clone(int_array_template, 0, zero=False)
-            return intersection
+            return array.clone(int_array_template, 0, zero=False)
 
     intersection = array.clone(int_array_template, min_size, zero=False)
 
-    cdef int min_val, min_idx, tmp_val, prev_val, all_same
-    min_val, min_idx, tmp_val, prev_val, all_same = -1, -1, -1, -1, -1
+    cdef int min_val = -1, min_idx = -1, tmp_val = -1, all_same = -1
 
     cdef int not_finished = 1
     while not_finished:
@@ -109,9 +107,9 @@ cpdef array.array intersect_lists_cython(lists):
             if pointers[min_idx] >= list_lens[min_idx]:
                 not_finished = 0
 
-    #PyMem_Free(my_arrays)
-    #PyMem_Free(pointers)
-    #PyMem_Free(list_lens)
+    PyMem_Free(my_arrays)
+    PyMem_Free(pointers)
+    PyMem_Free(list_lens)
 
     array.resize(intersection, intersection_idx)
     return intersection
