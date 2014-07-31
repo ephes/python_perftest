@@ -44,11 +44,11 @@ cpdef array.array intersect_lists_cython(lists):
     if not my_arrays:
         raise MemoryError()
 
-    cdef Py_ssize_t *pointers = <Py_ssize_t *>PyMem_Malloc(lists_len * cython.sizeof(Py_ssize_t))
+    cdef int *pointers = <Py_ssize_t *>PyMem_Malloc(lists_len * cython.sizeof(Py_ssize_t))
     if not pointers:
         raise MemoryError()
 
-    cdef Py_ssize_t *list_lens = <Py_ssize_t *>PyMem_Malloc(lists_len * cython.sizeof(Py_ssize_t))
+    cdef int *list_lens = <Py_ssize_t *>PyMem_Malloc(lists_len * cython.sizeof(Py_ssize_t))
     if not list_lens:
         raise MemoryError()
 
