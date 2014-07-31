@@ -1,0 +1,9 @@
+= Mac OSX =
+Install compatible llvm version:
+brew install homebrew/versions/llvm33 --enable-shared --with-clang --with-asan --rtti --enable-jit --enable-optimized
+
+Install llvmpy after setting this variable:
+export LLVM_CONFIG_PATH=/usr/local/opt/llvm33/bin/llvm-config-3.3
+
+pip install -r requirements.txt does not work because it gets the
+dependencies wrong. Use installation.sh. :/
