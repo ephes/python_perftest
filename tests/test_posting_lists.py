@@ -2,6 +2,7 @@
 
 import pytest
 
+from perftest.posting_lists import ExtensionArrayIntersect
 from perftest.posting_lists import CythonArrayIntersect
 from perftest.posting_lists import PythonArrayIntersect
 from perftest.posting_lists import PythonListIntersect
@@ -16,7 +17,8 @@ TEST_CLASSES = [
     PythonListIntersect,
     NumpyArrayIntersect,
     PythonSetIntersect,
-    CythonArrayIntersect,
+#    CythonArrayIntersect,
+    ExtensionArrayIntersect,
 ]
 
 def test_simple_intersection():

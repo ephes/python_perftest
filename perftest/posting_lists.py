@@ -16,8 +16,9 @@ except ImportError as err:
 
 from .posting_lists_cython import intersect_2cython
 from .posting_lists_cython import intersect_lists_cython
+from .posting_lists_extension import intersect_lists_extension
 
-def get_random_ints(sample_size=5000, a=1, b=500000):
+def get_random_ints(sample_size=5000, a=0, b=50000):
     return sorted(random.sample(range(b), sample_size))
 
 
@@ -27,10 +28,21 @@ class IntersectBase(object):
 
     def timeit(self):
         t = Timer(self)
-        print(self.timeit_string.format(round(t.timeit(number=10), 5)))
+        print(self.timeit_string.format(round(min(t.repeat(3, 10)), 6)))
     
     def intersection_as_list(self):
         return self()
+
+
+class IntersectBaseArray(IntersectBase):
+    def __init__(self, lists):
+        super(IntersectBaseArray, self).__init__(lists)
+        self.array_lists = []
+        for posting_list in self.lists:
+            self.array_lists.append(array("i", posting_list))
+
+    def intersection_as_list(self):
+        return list(self())
 
 
 class PythonListIntersect(IntersectBase):
@@ -128,14 +140,8 @@ class PythonSetIntersect(IntersectBase):
         return sorted(list(self()))
 
 
-class PythonArrayIntersect(IntersectBase):
+class PythonArrayIntersect(IntersectBaseArray):
     timeit_string = "python array intersection         : {:>30}s"
-
-    def __init__(self, lists):
-        super(PythonArrayIntersect, self).__init__(lists)
-        self.array_lists = []
-        for posting_list in self.lists:
-            self.array_lists.append(array("i", posting_list))
 
     def __call__(self):
         lists = self.array_lists
@@ -159,37 +165,43 @@ class PythonArrayIntersect(IntersectBase):
         self.intersection = intersection
         return intersection
 
-    def intersection_as_list(self):
-        return list(self())
 
-
-class CythonArrayIntersect(IntersectBase):
+class CythonArrayIntersect(IntersectBaseArray):
     timeit_string = "cython array intersection         : {:>30}s"
 
-    def __init__(self, lists):
-        super(CythonArrayIntersect, self).__init__(lists)
-        self.array_lists = []
-        for posting_list in self.lists:
-            self.array_lists.append(array("i", posting_list))
-        
     def __call__(self):
         #return intersect_2cython(self.xar, self.yar)
         return intersect_lists_cython(self.array_lists)
 
-    def intersection_as_list(self):
-        return list(self())
     
+class CythonArrayIntersect2(IntersectBaseArray):
+    timeit_string = "cython array intersection         : {:>30}s"
 
+    def __call__(self):
+        tmp_intersection = intersect_2cython(self.array_lists[0], self.array_lists[1])
+        for new_list in self.array_lists[2:]:
+            tmp_intersection = intersect_2cython(tmp_intersection, new_list)
+        return tmp_intersection
+
+
+class ExtensionArrayIntersect(IntersectBaseArray):
+    timeit_string = "c extension array intersection    : {:>30}s"
+
+    def __call__(self):
+        return intersect_lists_extension(self.array_lists)
+
+    
 def run_timeit():
-    #x, y, z = get_random_ints(), get_random_ints(), get_random_ints()
     posting_lists = [get_random_ints() for i in range(5)]
     test_classes = [
-        NumbaListIntersect,
         PythonArrayIntersect,
         PythonListIntersect,
+        NumbaListIntersect,
         NumpyArrayIntersect,
-        PythonSetIntersect,
         CythonArrayIntersect,
+        ExtensionArrayIntersect,
+        CythonArrayIntersect2,
+        PythonSetIntersect,
     ]
     for TestClass in  test_classes:
         test_instance = TestClass(posting_lists)

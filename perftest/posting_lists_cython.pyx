@@ -43,15 +43,15 @@ cpdef array.array intersect_2cython(object x, object y):
 cpdef array.array intersect_lists_cython(lists):
     cdef int lists_len = len(lists)
 
-    cdef int **my_arrays = <int **>PyMem_Malloc(lists_len * cython.sizeof(int))
+    cdef int **my_arrays = <int **>PyMem_Malloc(lists_len * cython.sizeof(Py_ssize_t))
     if not my_arrays:
         raise MemoryError()
 
-    cdef int *pointers = <int *>PyMem_Malloc(lists_len * cython.sizeof(int))
+    cdef Py_ssize_t *pointers = <Py_ssize_t *>PyMem_Malloc(lists_len * cython.sizeof(Py_ssize_t))
     if not pointers:
         raise MemoryError()
 
-    cdef int *list_lens = <int *>PyMem_Malloc(lists_len * cython.sizeof(int))
+    cdef Py_ssize_t *list_lens = <Py_ssize_t *>PyMem_Malloc(lists_len * cython.sizeof(Py_ssize_t))
     if not list_lens:
         raise MemoryError()
 
@@ -111,9 +111,9 @@ cpdef array.array intersect_lists_cython(lists):
             if pointers[min_idx] >= list_lens[min_idx]:
                 not_finished = 0
 
-    PyMem_Free(my_arrays)
-    PyMem_Free(pointers)
-    PyMem_Free(list_lens)
+    #PyMem_Free(my_arrays)
+    #PyMem_Free(pointers)
+    #PyMem_Free(list_lens)
 
     array.resize(intersection, intersection_idx)
     return intersection
