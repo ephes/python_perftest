@@ -46,7 +46,8 @@ intersect_lists_extension(PyObject *m, PyObject *args) {
         return NULL;
     }
 
-    int i, lists_len, min_len;
+    int i, min_len;
+    Py_ssize_t lists_len;
     lists_len = PyList_Size(list);
     int **my_arrays = (int **)PyMem_Malloc(lists_len * sizeof(Py_ssize_t));
     if (my_arrays == NULL)
@@ -62,6 +63,7 @@ intersect_lists_extension(PyObject *m, PyObject *args) {
 
     for (i = 0; i < lists_len; i++) {
         PyObject *array = PyList_GetItem(list, i);
+#if PY_MAJOR_VERSION >= 3
         Py_buffer array_buffer;
         if (PyObject_CheckBuffer(array)) {
             PyObject_GetBuffer(array, &array_buffer, PyBUF_SIMPLE);
@@ -70,25 +72,40 @@ intersect_lists_extension(PyObject *m, PyObject *args) {
                 "list elements have to support the buffer protocol");
             return NULL;
         }
-        
+
+        int *array_ptr = array_buffer.buf;
+        int array_len = array_buffer.len / array_buffer.itemsize;
+#else
+        PyObject *buffer_info = PyObject_CallMethod(array, "buffer_info", NULL);
+        int *array_ptr = NULL, array_len;
+        PyArg_ParseTuple(buffer_info, "li", &array_ptr, &array_len);
+#endif
         pointers[i] = 0;
-        if (array_buffer.len > 0) {
-            my_arrays[i] = array_buffer.buf;
-            list_lens[i] = array_buffer.len / array_buffer.itemsize;
-            if (i == 0 || array_buffer.len < min_len)
-                min_len = array_buffer.len;
+        if (array_len > 0) {
+            my_arrays[i] = array_ptr;
+            list_lens[i] = array_len;
+            if (i == 0 || array_len < min_len)
+                min_len = array_len;
         } else {
-            Py_buffer *intersection_buffer = get_new_buffer(0, sizeof(int), "i");
             PyMem_Free(my_arrays);
             PyMem_Free(pointers);
             PyMem_Free(list_lens);
+#if PY_MAJOR_VERSION >= 3
+            Py_buffer *intersection_buffer = get_new_buffer(0, sizeof(int), "d");
             return PyMemoryView_FromBuffer(intersection_buffer);
+#else
+            return PyList_New(0);
+#endif
         }
     }
 
     int intersection_idx = 0;
+#if PY_MAJOR_VERSION >= 3
     Py_buffer *intersection_buffer = get_new_buffer(min_len, sizeof(int), "i");
     int *intersection = intersection_buffer->buf;
+#else
+    PyObject *intersection = PyList_New(0);
+#endif
 
     int min_val = -1, min_idx = -1, tmp_val = -1, all_same;
 
@@ -113,7 +130,12 @@ intersect_lists_extension(PyObject *m, PyObject *args) {
             }
         }
         if (all_same == 1) {
+#if PY_MAJOR_VERSION >= 3
             intersection[intersection_idx] = min_val;
+#else
+            PyObject *item = PyInt_FromLong(min_val);
+            PyList_Append(intersection, item);
+#endif
             intersection_idx++;
             for (i = 0; i < lists_len; i++) {
                 pointers[i]++;
@@ -133,10 +155,14 @@ intersect_lists_extension(PyObject *m, PyObject *args) {
     PyMem_Free(my_arrays);
     PyMem_Free(pointers);
     PyMem_Free(list_lens);
-    int nbytes = intersection_idx * intersection_buffer->itemsize;
+#if PY_MAJOR_VERSION >= 3
+    long nbytes = intersection_idx * intersection_buffer->itemsize;
     //PyMem_Realloc(intersection_buffer->buf, nbytes);
     intersection_buffer->len = nbytes;
     return PyMemoryView_FromBuffer(intersection_buffer);
+#else
+    return intersection;
+#endif
 }
 
 static PyMethodDef posting_lists_extension_methods[] = {
