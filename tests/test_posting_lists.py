@@ -3,6 +3,7 @@
 import pytest
 
 from perftest.posting_lists import ExtensionArrayIntersect
+from perftest.posting_lists import CythonArrayIntersect2
 from perftest.posting_lists import CythonArrayIntersect
 from perftest.posting_lists import PythonArrayIntersect
 from perftest.posting_lists import PythonListIntersect
@@ -17,7 +18,8 @@ TEST_CLASSES = [
     PythonListIntersect,
     NumpyArrayIntersect,
     PythonSetIntersect,
-#    CythonArrayIntersect,
+    CythonArrayIntersect2,
+    #CythonArrayIntersect,
     ExtensionArrayIntersect,
 ]
 
@@ -65,4 +67,18 @@ def test_all_lists_empty_intersection():
     result = a
     for TestClass in TEST_CLASSES:
         test_instance = TestClass([a, b, c])
+        assert test_instance.intersection_as_list() == result
+
+def test_one_list_only_intersection():
+    a = [1, 2, 4]
+    result = a
+    for TestClass in TEST_CLASSES:
+        test_instance = TestClass([a])
+        assert test_instance.intersection_as_list() == result
+
+def test_one_empty_list_only_intersection():
+    a = []
+    result = a
+    for TestClass in TEST_CLASSES:
+        test_instance = TestClass([a])
         assert test_instance.intersection_as_list() == result

@@ -50,6 +50,8 @@ class PythonListIntersect(IntersectBase):
 
     def __call__(self):
         lists = self.lists
+        if len(lists) == 1:
+            return lists[0]
         pointers = [0 for l in lists]
         intersection = []
         list_lens = [len(l) for l in lists]
@@ -99,10 +101,13 @@ class NumbaListIntersect(IntersectBase):
 
     def __call__(self):
         lists = self.lists
-        tmp_intersection = numba_list_intersect(lists[0], lists[1])
-        for new_list in lists[2:]:
-            tmp_intersection = numba_list_intersect(tmp_intersection, new_list)
-        return tmp_intersection
+        if len(lists) == 1:
+            return lists[0]
+        else:
+            tmp_intersection = numba_list_intersect(lists[0], lists[1])
+            for new_list in lists[2:]:
+                tmp_intersection = numba_list_intersect(tmp_intersection, new_list)
+            return tmp_intersection
 
 
 class NumpyArrayIntersect(IntersectBase):
@@ -115,10 +120,15 @@ class NumpyArrayIntersect(IntersectBase):
             self.array_lists.append(np.array(posting_list))
 
     def __call__(self):
-        tmp_intersection = np.intersect1d(self.array_lists[0], self.array_lists[1])
-        for new_list in self.array_lists[2:]:
-            tmp_intersection = np.intersect1d(tmp_intersection, new_list)
-        return tmp_intersection
+        lists = self.lists
+        if len(lists) == 1:
+            return lists[0]
+        else:
+            tmp_intersection = np.intersect1d(self.array_lists[0],
+                self.array_lists[1])
+            for new_list in self.array_lists[2:]:
+                tmp_intersection = np.intersect1d(tmp_intersection, new_list)
+            return tmp_intersection
 
     def intersection_as_list(self):
         return list(self())
@@ -178,10 +188,14 @@ class CythonArrayIntersect2(IntersectBaseArray):
     timeit_string = "cython array intersection         : {0:.5f}s"
 
     def __call__(self):
-        tmp_intersection = intersect_2cython(self.array_lists[0], self.array_lists[1])
-        for new_list in self.array_lists[2:]:
-            tmp_intersection = intersect_2cython(tmp_intersection, new_list)
-        return tmp_intersection
+        lists = self.lists
+        if len(lists) == 1:
+            return lists[0]
+        else:
+            tmp_intersection = intersect_2cython(self.array_lists[0], self.array_lists[1])
+            for new_list in self.array_lists[2:]:
+                tmp_intersection = intersect_2cython(tmp_intersection, new_list)
+            return tmp_intersection
 
 
 class ExtensionArrayIntersect(IntersectBaseArray):
