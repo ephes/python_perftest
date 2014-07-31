@@ -18,7 +18,7 @@ from .posting_lists_cython import intersect_2cython
 from .posting_lists_cython import intersect_lists_cython
 from .posting_lists_extension import intersect_lists_extension
 
-def get_random_ints(sample_size=5000, a=0, b=1000000):
+def get_random_ints(sample_size=5000, a=0, b=100000):
     return sorted(random.sample(range(b), sample_size))
 
 

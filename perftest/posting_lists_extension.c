@@ -39,7 +39,6 @@ intersect_lists_extension(PyObject *m, PyObject *args) {
     PyObject* list;
     if (!PyArg_ParseTuple(args, "O", &list))
         return NULL;
-    Py_INCREF(list);
 
     if (!PyList_Check(list)) {
         PyErr_SetString(PyExc_TypeError, "arg must be list");
