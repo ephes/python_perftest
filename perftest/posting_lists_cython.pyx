@@ -4,6 +4,7 @@ cimport cython
 from cpython cimport array
 from array import array
 
+from cpython cimport Py_INCREF, Py_DECREF
 from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
 
 cpdef array.array intersect_2cython(object x, object y):
@@ -78,7 +79,8 @@ cpdef array.array intersect_lists_cython(lists):
 
     intersection = array.clone(int_array_template, min_size, zero=False)
 
-    cdef int min_val = -1, min_idx = -1, tmp_val = -1, all_same = -1
+    cdef int min_val = -1, max_val = -1, max_idx = -1
+    cdef int min_idx = -1, tmp_val = -1, all_same = -1
 
     cdef int not_finished = 1
     while not_finished:
@@ -92,9 +94,14 @@ cpdef array.array intersect_lists_cython(lists):
                     all_same = 0
                 elif tmp_val > min_val:
                     all_same = 0
+                if tmp_val > max_val:
+                    max_val = tmp_val
+                    max_idx = i
             else:
                 min_val = tmp_val
                 min_idx = i
+                max_val = tmp_val
+                max_idx = i
         if all_same == 1:
             intersection[intersection_idx] = min_val
             intersection_idx += 1
@@ -106,6 +113,12 @@ cpdef array.array intersect_lists_cython(lists):
             pointers[min_idx] += 1
             if pointers[min_idx] >= list_lens[min_idx]:
                 not_finished = 0
+#            for i in range(lists_len):
+#                while pointers[i] < max_val and pointers[i] < list_lens[i]:
+#                    pointers[i] += 1
+#                if pointers[i] >= list_lens[i]:
+#                    not_finished = 0
+#                    break
 
     PyMem_Free(my_arrays)
     PyMem_Free(pointers)

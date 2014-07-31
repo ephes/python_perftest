@@ -18,7 +18,7 @@ from .posting_lists_cython import intersect_2cython
 from .posting_lists_cython import intersect_lists_cython
 from .posting_lists_extension import intersect_lists_extension
 
-def get_random_ints(sample_size=5000, a=0, b=50000):
+def get_random_ints(sample_size=5000, a=0, b=1000000):
     return sorted(random.sample(range(b), sample_size))
 
 
@@ -46,7 +46,7 @@ class IntersectBaseArray(IntersectBase):
 
 
 class PythonListIntersect(IntersectBase):
-    timeit_string = "naive python list intersection    : {0:.5f}s"
+    timeit_string = "naive python list intersection        : {0:.5f}s"
 
     def __call__(self):
         lists = self.lists
@@ -97,7 +97,7 @@ numba_list_intersect = jit()(list_intersect)
 
 
 class NumbaListIntersect(IntersectBase):
-    timeit_string = "python list intersection with @jit: {0:.5f}s"
+    timeit_string = "python list intersection with @jit    : {0:.5f}s"
 
     def __call__(self):
         lists = self.lists
@@ -111,7 +111,7 @@ class NumbaListIntersect(IntersectBase):
 
 
 class NumpyArrayIntersect(IntersectBase):
-    timeit_string = "numpy array intersection          : {0:.5f}s"
+    timeit_string = "numpy array intersection              : {0:.5f}s"
     
     def __init__(self, lists):
         super(NumpyArrayIntersect, self).__init__(lists)
@@ -135,7 +135,7 @@ class NumpyArrayIntersect(IntersectBase):
 
 
 class PythonSetIntersect(IntersectBase):
-    timeit_string = "python set intersection           : {0:.5f}s"
+    timeit_string = "python set intersection               : {0:.5f}s"
     
     def __init__(self, lists):
         super(PythonSetIntersect, self).__init__(lists)
@@ -151,7 +151,7 @@ class PythonSetIntersect(IntersectBase):
 
 
 class PythonArrayIntersect(IntersectBaseArray):
-    timeit_string = "python array intersection         : {0:.5f}s"
+    timeit_string = "python array intersection             : {0:.5f}s"
 
     def __call__(self):
         lists = self.array_lists
@@ -177,7 +177,7 @@ class PythonArrayIntersect(IntersectBaseArray):
 
 
 class CythonArrayIntersect(IntersectBaseArray):
-    timeit_string = "cython array intersection         : {0:.5f}s"
+    timeit_string = "cython intersection of multiple arrays: {0:.5f}s"
 
     def __call__(self):
         #return intersect_2cython(self.xar, self.yar)
@@ -185,7 +185,7 @@ class CythonArrayIntersect(IntersectBaseArray):
 
     
 class CythonArrayIntersect2(IntersectBaseArray):
-    timeit_string = "cython array intersection         : {0:.5f}s"
+    timeit_string = "cython intersection of 2 arrays       : {0:.5f}s"
 
     def __call__(self):
         lists = self.lists
@@ -199,7 +199,7 @@ class CythonArrayIntersect2(IntersectBaseArray):
 
 
 class ExtensionArrayIntersect(IntersectBaseArray):
-    timeit_string = "c extension array intersection    : {0:.5f}s"
+    timeit_string = "c extension array intersection        : {0:.5f}s"
 
     def __call__(self):
         return intersect_lists_extension(self.array_lists)
