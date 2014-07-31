@@ -12,21 +12,18 @@ cpdef array.array intersect_2cython(object x, object y):
     cdef int p1, p2
     p1, p2 = 0, 0
 
-    cdef int max_x, max_y
-    max_x, max_y = cx.size, cy.size
+    cdef int size_x = cx.size, size_y = cy.size
 
     cdef array.array int_array_template = array('i', [])
     cdef array.array intersection
     cdef int is_idx
     cdef int is_size
     is_idx = 0
-    is_size = max(max_x, max_y)
+    is_size = min(size_x, size_y)
     intersection = array.clone(int_array_template, is_size, zero=False)
 
-    cdef int counter
     cdef int a, b
-    while p1 < max_x and p2 < max_y:
-        counter += 1
+    while p1 < size_x and p2 < size_y:
         a, b = cx[p1], cy[p2]
         if a == b:
             intersection[is_idx] = a
