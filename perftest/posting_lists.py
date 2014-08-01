@@ -3,9 +3,9 @@
 import random
 import numpy as np
 
-from numba import jit
 from array import array
 from timeit import Timer
+from numba import jit as numba_jit
 
 try:
     # python 2
@@ -93,11 +93,11 @@ def list_intersect(x, y):
             p2 += 1
     return intersection
 
-numba_list_intersect = jit()(list_intersect)
+numba_list_intersect = numba_jit()(list_intersect)
 
 
 class NumbaListIntersect(IntersectBase):
-    timeit_string = "python list intersection with @jit    : {0:.5f}s"
+    timeit_string = "list intersection with numba @jit     : {0:.5f}s"
 
     def __call__(self):
         lists = self.lists
