@@ -11,9 +11,9 @@ if sys.argv[-1] == 'publish':
     sys.exit()
 
 extensions = [
-    Extension("posting_lists_extension",
+    Extension("perftest/posting_lists_extension",
         ["perftest/posting_lists_extension.c"]),
-    Extension("posting_lists_cython",
+    Extension("perftest/posting_lists_cython",
         ["perftest/posting_lists_cython.pyx"]),
 ]
 
